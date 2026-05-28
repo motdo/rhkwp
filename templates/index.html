@@ -1,12 +1,282 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Todo API</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Todo Manager</title>
+    <style>
+        :root {
+            color-scheme: light;
+            --border: #d7dce2;
+            --ink: #1f2933;
+            --muted: #657282;
+            --bg: #f5f7fa;
+            --panel: #ffffff;
+            --accent: #1f7a6b;
+            --accent-dark: #155a50;
+            --danger: #b42318;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: var(--bg);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .shell {
+            width: min(960px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 36px 0;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 28px;
+            line-height: 1.2;
+        }
+
+        h2 {
+            margin: 0 0 16px;
+            font-size: 18px;
+        }
+
+        .muted {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        form {
+            display: grid;
+            gap: 10px;
+        }
+
+        label {
+            display: grid;
+            gap: 6px;
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0 12px;
+            font-size: 15px;
+            background: #fff;
+            color: var(--ink);
+        }
+
+        button {
+            min-height: 40px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            padding: 0 14px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            background: var(--accent);
+            color: #fff;
+        }
+
+        button:hover {
+            background: var(--accent-dark);
+        }
+
+        button.secondary {
+            background: #fff;
+            color: var(--ink);
+            border-color: var(--border);
+        }
+
+        button.secondary:hover {
+            background: #eef2f5;
+        }
+
+        button.danger {
+            background: #fff;
+            color: var(--danger);
+            border-color: #f2c3bd;
+        }
+
+        button.danger:hover {
+            background: #fff4f2;
+        }
+
+        .status {
+            min-height: 22px;
+            margin: 12px 0 0;
+            font-size: 14px;
+            color: var(--muted);
+        }
+
+        .status.error {
+            color: var(--danger);
+        }
+
+        .toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .todo-form {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .todo-list {
+            display: grid;
+            gap: 8px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .todo-item {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 8px;
+            min-height: 52px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px;
+            background: #fff;
+        }
+
+        .todo-title {
+            min-width: 0;
+            word-break: break-word;
+            font-size: 15px;
+        }
+
+        .todo-item.done .todo-title {
+            color: var(--muted);
+            text-decoration: line-through;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 720px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            header,
+            .toolbar {
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .todo-form,
+            .todo-item {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>Todo API 프로젝트</h1>
-    <p>2단계 골격 구성 완료</p>
+    <main class="shell">
+        <header>
+            <div>
+                <h1>Todo Manager</h1>
+                <div class="muted">Flask + SQLite + jQuery</div>
+            </div>
+            <button id="logoutBtn" class="secondary hidden" type="button">Logout</button>
+        </header>
+
+        <section id="authView" class="grid">
+            <div class="panel">
+                <h2>Login</h2>
+                <form id="loginForm">
+                    <label>
+                        User ID
+                        <input id="loginUid" name="uid" autocomplete="username" required>
+                    </label>
+                    <label>
+                        Password
+                        <input id="loginPwd" name="upwd" type="password" autocomplete="current-password" required>
+                    </label>
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+
+            <div class="panel">
+                <h2>Register</h2>
+                <form id="registerForm">
+                    <label>
+                        Name
+                        <input id="registerName" name="uname" autocomplete="name" required>
+                    </label>
+                    <label>
+                        User ID
+                        <input id="registerUid" name="uid" autocomplete="username" required>
+                    </label>
+                    <label>
+                        Password
+                        <input id="registerPwd" name="upwd" type="password" autocomplete="new-password" required>
+                    </label>
+                    <button type="submit">Create Account</button>
+                </form>
+            </div>
+        </section>
+
+        <section id="todoView" class="panel hidden">
+            <div class="toolbar">
+                <div>
+                    <h2>My Todos</h2>
+                    <div id="currentUser" class="muted"></div>
+                </div>
+                <button id="refreshBtn" class="secondary" type="button">Refresh</button>
+            </div>
+
+            <form id="todoForm" class="todo-form">
+                <input id="todoTitle" name="title" placeholder="Add a todo" required>
+                <button type="submit">Add</button>
+            </form>
+
+            <ul id="todoList" class="todo-list"></ul>
+        </section>
+
+        <p id="status" class="status"></p>
+    </main>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
-
